@@ -440,6 +440,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 100072, guid: 2c49a169fa02b2545921fcc829011ecb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 100098, guid: 2c49a169fa02b2545921fcc829011ecb, type: 3}
       propertyPath: m_Name
       value: SuperMario
