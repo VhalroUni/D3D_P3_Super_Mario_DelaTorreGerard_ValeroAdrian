@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IRestartGameElement
 {
     public enum TPunchType
     {
@@ -14,6 +11,8 @@ public class PlayerController : MonoBehaviour
     public Camera m_Camera;
     CharacterController m_CharacterController;
     Animator m_Animator;
+    Vector3 m_StartPosition;
+    Quaternion m_StartRotation;
     public float m_RunSpeed;
     public float m_WalkSpeed;
     float m_VerticalSpeed = 0.0f;
@@ -36,15 +35,18 @@ public class PlayerController : MonoBehaviour
     {
         m_CharacterController = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
-        m_LastPunchTime=-m_MaxTimeToComboPunch;
     }
 
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        m_LastPunchTime = -m_MaxTimeToComboPunch;
         m_RightHandPunchCollider.gameObject.SetActive(false);
         m_LeftHandPunchCollider.gameObject.SetActive(false);
         m_KickPunchCollider.gameObject.SetActive(false);
+        m_StartPosition=transform.position;
+        m_StartRotation=transform.rotation;
+        GameManager.GetGameManager().AddRestartGameElement(this);
     }
 
     void Update()
@@ -125,5 +127,12 @@ public class PlayerController : MonoBehaviour
             m_LeftHandPunchCollider.SetActive(Active);
         else if (PunchType == TPunchType.KICK)
             m_KickPunchCollider.SetActive(Active);
+    }
+    public void RestartGame()
+    {
+        m_CharacterController.enabled = false;
+        transform.position=m_StartPosition;
+        transform.rotation = m_StartRotation;
+        m_CharacterController.enabled = true;
     }
 }
