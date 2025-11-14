@@ -12,11 +12,21 @@ public class PlayerController : MonoBehaviour
     float m_VerticalSpeed = 0.0f;
     public Transform m_LookAt;
     [Range(0.0f, 1.0f)] public float m_RotationLerpPct = 0.1f;
+    public float m_DampTime = 0.1f;
+
+    [Header("Input")]
+    public float m_MaxTimeToComboPunch = 0.8f;
+    int m_CurrentPunchId;
+    float m_LastPunchTime;
+
+    [Header("Input")]
+    public int m_PunchMouseButton = 0;
 
     private void Awake()
     {
         m_CharacterController = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
+        m_LastPunchTime=-m_MaxTimeToComboPunch;
     }
 
     void Update()
@@ -50,7 +60,7 @@ public class PlayerController : MonoBehaviour
         }
 
         if (l_Movement.sqrMagnitude == 0.0f)
-            m_Animator.SetFloat("Speed", 0.0f);
+            m_Animator.SetFloat("Speed", 0.0f, m_DampTime, Time.deltaTime);
         else
         {
             m_Animator.SetFloat("Speed", l_SpeedAnimatorValue);
@@ -65,5 +75,28 @@ public class PlayerController : MonoBehaviour
             m_VerticalSpeed = 0.0f;
         else if ((l_CollisionFlags & CollisionFlags.CollidedAbove) != 0 && m_VerticalSpeed > 0.0f)
             m_VerticalSpeed = 0.0f;
+
+        UpdatePunch();
+    }
+
+    void UpdatePunch()
+    {
+        if (CanPunch() && Input.GetMouseButtonDown(m_PunchMouseButton))
+            Punch();
+    }
+    bool CanPunch()
+    {
+        return !m_Animator.IsInTransition(0) && m_Animator.GetCurrentAnimatorStateInfo(0).shortNameHash==Animator.StringToHash("Movement");
+    }
+    void Punch()
+    {
+        float l_DiffPunchTime=Time.time-m_LastPunchTime;
+        if (l_DiffPunchTime < m_MaxTimeToComboPunch)
+            m_CurrentPunchId = (m_CurrentPunchId + 1) % 3;
+        else
+            m_CurrentPunchId=0;
+        m_LastPunchTime = Time.time;
+        m_Animator.SetTrigger("Punch");
+        m_Animator.SetInteger("PunchId", m_CurrentPunchId);
     }
 }
