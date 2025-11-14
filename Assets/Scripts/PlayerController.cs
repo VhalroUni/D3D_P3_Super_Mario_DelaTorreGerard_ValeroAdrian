@@ -1,9 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public enum TPunchType
+    {
+        RIGHT_HAND=0,
+        LEFT_HAND,
+        KICK
+    }
     public Camera m_Camera;
     CharacterController m_CharacterController;
     Animator m_Animator;
@@ -14,10 +21,13 @@ public class PlayerController : MonoBehaviour
     [Range(0.0f, 1.0f)] public float m_RotationLerpPct = 0.1f;
     public float m_DampTime = 0.1f;
 
-    [Header("Input")]
+    [Header("Punch")]
     public float m_MaxTimeToComboPunch = 0.8f;
     int m_CurrentPunchId;
     float m_LastPunchTime;
+    public GameObject m_RightHandPunchCollider;
+    public GameObject m_LeftHandPunchCollider;
+    public GameObject m_KickPunchCollider;
 
     [Header("Input")]
     public int m_PunchMouseButton = 0;
@@ -27,6 +37,14 @@ public class PlayerController : MonoBehaviour
         m_CharacterController = GetComponent<CharacterController>();
         m_Animator = GetComponent<Animator>();
         m_LastPunchTime=-m_MaxTimeToComboPunch;
+    }
+
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        m_RightHandPunchCollider.gameObject.SetActive(false);
+        m_LeftHandPunchCollider.gameObject.SetActive(false);
+        m_KickPunchCollider.gameObject.SetActive(false);
     }
 
     void Update()
@@ -63,7 +81,7 @@ public class PlayerController : MonoBehaviour
             m_Animator.SetFloat("Speed", 0.0f, m_DampTime, Time.deltaTime);
         else
         {
-            m_Animator.SetFloat("Speed", l_SpeedAnimatorValue);
+            m_Animator.SetFloat("Speed", l_SpeedAnimatorValue, m_DampTime, Time.deltaTime);
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(l_Movement), m_RotationLerpPct);
         }
 
@@ -98,5 +116,14 @@ public class PlayerController : MonoBehaviour
         m_LastPunchTime = Time.time;
         m_Animator.SetTrigger("Punch");
         m_Animator.SetInteger("PunchId", m_CurrentPunchId);
+    }
+    public void SetActivePunch(TPunchType PunchType, bool Active)
+    {
+        if(PunchType==TPunchType.RIGHT_HAND)
+            m_RightHandPunchCollider.SetActive(Active);
+        else if(PunchType == TPunchType.LEFT_HAND)
+            m_LeftHandPunchCollider.SetActive(Active);
+        else if (PunchType == TPunchType.KICK)
+            m_KickPunchCollider.SetActive(Active);
     }
 }
