@@ -31,6 +31,12 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     [Header("Input")]
     public int m_PunchMouseButton = 0;
 
+    [Header("Health")]
+    public int m_Life = 100;
+
+    [Header("Coin")]
+    public int m_Coin = 0;
+
     private void Awake()
     {
         m_CharacterController = GetComponent<CharacterController>();
@@ -98,6 +104,17 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
         UpdatePunch();
     }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Item"))
+        {
+            Item l_Item = other.GetComponent<Item>();
+            if (l_Item.CanPick())
+                l_Item.Pick();
+        }
+        else if (other.CompareTag("DeadZone"))
+            Kill();
+    }
 
     void UpdatePunch()
     {
@@ -135,4 +152,39 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         transform.rotation = m_StartRotation;
         m_CharacterController.enabled = true;
     }
+
+    public void AddLife(int Life)
+    {
+        m_Life += Life;
+        if (m_Life > 100)
+            m_Life = 100;
+        //UpdateLifeHUD();
+    }
+
+    public void AddCoin(int Coin)
+    {
+        m_Coin += Coin;
+        //UpdateCoinHUD();
+    }
+
+    public void Damage(int Damage)
+    {
+        m_Life -= Damage;
+
+        if (m_Life < 0)
+        {
+            m_Life = 0;
+        }
+
+        //UpdateLifeHUD();
+
+        if (m_Life <= 0)
+            Kill();
+    }
+
+    void Kill()
+    {
+        GameManager.GetGameManager().RestartGame();
+    }
+
 }

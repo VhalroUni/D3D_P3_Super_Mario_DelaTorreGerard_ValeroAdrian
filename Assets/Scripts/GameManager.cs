@@ -5,6 +5,7 @@ public class GameManager : MonoBehaviour
 {
     static GameManager m_GameManager;
     List<IRestartGameElement> m_RestartGameElements = new List<IRestartGameElement>();
+    PlayerController m_Player;
 
     private void Awake()
     {
@@ -36,4 +37,13 @@ public class GameManager : MonoBehaviour
         foreach (IRestartGameElement l_RestartGameElement in m_RestartGameElements)
             l_RestartGameElement.RestartGame();
     }
+    public PlayerController GetPLayer()
+    {
+        return m_Player;
+    }
+    public void SetPlayer(PlayerController Player)
+    {
+        m_Player = Player;
+    }
+
 }
