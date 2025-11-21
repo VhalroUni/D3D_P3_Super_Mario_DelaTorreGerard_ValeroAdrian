@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviour
     static GameManager m_GameManager;
     List<IRestartGameElement> m_RestartGameElements = new List<IRestartGameElement>();
     PlayerController m_Player;
+    public GameUI m_GameUI;
 
     private void Awake()
     {
@@ -27,10 +28,11 @@ public class GameManager : MonoBehaviour
     }
     private void Update()
     {
-        if(Input.GetKeyUp(KeyCode.R))
-        {
+        if (Input.GetKeyUp(KeyCode.R))
             RestartGame();
-        }
+
+        if (Input.GetKeyUp(KeyCode.H))
+            m_Player.Hit();
     }
     public void RestartGame()
     {

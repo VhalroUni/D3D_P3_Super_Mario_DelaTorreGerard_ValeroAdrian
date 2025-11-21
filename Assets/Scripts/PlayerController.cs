@@ -1,10 +1,12 @@
+using TreeEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour, IRestartGameElement
 {
     public enum TPunchType
     {
-        RIGHT_HAND=0,
+        RIGHT_HAND = 0,
         LEFT_HAND,
         KICK
     }
@@ -38,18 +40,18 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     public int m_PunchMouseButton = 0;
 
     [Header("Health")]
-    public int m_Life = 100;
+    public int m_Life = 8;
 
     [Header("Coin")]
-    public int m_Coin = 0;
-
-    [Header("Audio")]
-    public AudioSource m_LeftFootStepAudioSource;
-    public AudioSource m_RightFootStepAudioSource;
+    public int m_Coins = 0;
 
     [Header("Attach")]
     public float m_MaxAngleToAttachElevator = 30.0f;
     Collider m_ElevatorCollider;
+
+    [Header("Audio")]
+    public AudioSource m_LeftFootStepAudioSource;
+    public AudioSource m_RightFootStepAudioSource;
 
     private void Awake()
     {
@@ -64,8 +66,8 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         m_RightHandPunchCollider.gameObject.SetActive(false);
         m_LeftHandPunchCollider.gameObject.SetActive(false);
         m_KickPunchCollider.gameObject.SetActive(false);
-        m_StartPosition=transform.position;
-        m_StartRotation=transform.rotation;
+        m_StartPosition = transform.position;
+        m_StartRotation = transform.rotation;
         GameManager.GetGameManager().AddRestartGameElement(this);
     }
 
@@ -113,7 +115,7 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
                 Jump();
         }
 
-        l_Movement *= l_Speed*Time.deltaTime;
+        l_Movement *= l_Speed * Time.deltaTime;
         m_VerticalSpeed += Physics.gravity.y * Time.deltaTime;
         l_Movement.y = m_VerticalSpeed * Time.deltaTime;
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Movement);
@@ -165,18 +167,15 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         transform.up = Vector3.up;
         m_ElevatorCollider = null;
     }
-    void UpdateUpElevator()
-    {
-        Vector3 l_Direction = transform.forward;
-        l_Direction.y = 0.0f;
-        l_Direction.Normalize();
-        transform.rotation = Quaternion.LookRotation(l_Direction, Vector3.up);
-    }
-
     void UpdateElevator()
     {
         if (m_ElevatorCollider != null)
-            UpdateUpElevator();
+        {
+            Vector3 l_Direction = transform.forward;
+            l_Direction.y = 0.0f;
+            l_Direction.Normalize();
+            transform.rotation = Quaternion.LookRotation(l_Direction, Vector3.up);
+        }
     }
     void UpdatePunch()
     {
@@ -185,24 +184,24 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     }
     bool CanPunch()
     {
-        return !m_Animator.IsInTransition(0) && m_Animator.GetCurrentAnimatorStateInfo(0).shortNameHash==Animator.StringToHash("Movement");
+        return !m_Animator.IsInTransition(0) && m_Animator.GetCurrentAnimatorStateInfo(0).shortNameHash == Animator.StringToHash("Movement");
     }
     void Punch()
     {
-        float l_DiffPunchTime=Time.time-m_LastPunchTime;
+        float l_DiffPunchTime = Time.time - m_LastPunchTime;
         if (l_DiffPunchTime < m_MaxTimeToComboPunch)
             m_CurrentPunchId = (m_CurrentPunchId + 1) % 3;
         else
-            m_CurrentPunchId=0;
+            m_CurrentPunchId = 0;
         m_LastPunchTime = Time.time;
         m_Animator.SetTrigger("Punch");
         m_Animator.SetInteger("PunchId", m_CurrentPunchId);
     }
     public void SetActivePunch(TPunchType PunchType, bool Active)
     {
-        if(PunchType==TPunchType.RIGHT_HAND)
+        if (PunchType == TPunchType.RIGHT_HAND)
             m_RightHandPunchCollider.SetActive(Active);
-        else if(PunchType == TPunchType.LEFT_HAND)
+        else if (PunchType == TPunchType.LEFT_HAND)
             m_LeftHandPunchCollider.SetActive(Active);
         else if (PunchType == TPunchType.KICK)
             m_KickPunchCollider.SetActive(Active);
@@ -210,7 +209,7 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     public void RestartGame()
     {
         m_CharacterController.enabled = false;
-        transform.position=m_StartPosition;
+        transform.position = m_StartPosition;
         transform.rotation = m_StartRotation;
         m_CharacterController.enabled = true;
     }
@@ -255,8 +254,17 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
     public void AddCoin(int Coin)
     {
-        m_Coin += Coin;
+        ++m_Coins;
+        m_Coins += Coin;
+        GameManager.GetGameManager().m_GameUI.SetCoins(m_Coins);
+        GameManager.GetGameManager().m_GameUI.ShowUI();
         //UpdateCoinHUD();
+    }
+    public void Hit()
+    {
+        --m_Life;
+        GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
+        GameManager.GetGameManager().m_GameUI.ShowUI();
     }
 
     public void Damage(int Damage)
@@ -290,6 +298,4 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         l_CurrentAudioSource.clip = l_AudioClip;
         l_CurrentAudioSource.Play();
     }
-
-
 }
