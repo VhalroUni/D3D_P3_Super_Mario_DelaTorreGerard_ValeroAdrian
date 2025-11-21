@@ -47,6 +47,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     public AudioSource m_LeftFootStepAudioSource;
     public AudioSource m_RightFootStepAudioSource;
 
+    [Header("Attach")]
+    public float m_MaxAngleToAttachElevator = 30.0f;
+    Collider m_ElevatorCollider;
+
     private void Awake()
     {
         m_CharacterController = GetComponent<CharacterController>();
@@ -120,6 +124,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
         UpdatePunch();
     }
+    void LateUpdate()
+    {
+        UpdateElevator();
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Item"))
@@ -130,8 +138,46 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         }
         else if (other.CompareTag("DeadZone"))
             Kill();
+        else if (other.CompareTag("Elevator"))
+        {
+            if (CanAttachToElevator(other))
+                AttachToElevator(other);
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Elevator"))
+            DetachFromElevator();
+    }
+    bool CanAttachToElevator(Collider ElevatorCollider)
+    {
+
+        return Vector3.Dot(ElevatorCollider.transform.up, Vector3.up) > Mathf.Cos(m_MaxAngleToAttachElevator * Mathf.Deg2Rad);
+    }
+    void AttachToElevator(Collider ElevatorCollider)
+    {
+        transform.SetParent(ElevatorCollider.transform.parent);
+        m_ElevatorCollider = ElevatorCollider;
+    }
+    void DetachFromElevator()
+    {
+        transform.SetParent(null);
+        transform.up = Vector3.up;
+        m_ElevatorCollider = null;
+    }
+    void UpdateUpElevator()
+    {
+        Vector3 l_Direction = transform.forward;
+        l_Direction.y = 0.0f;
+        l_Direction.Normalize();
+        transform.rotation = Quaternion.LookRotation(l_Direction, Vector3.up);
     }
 
+    void UpdateElevator()
+    {
+        if (m_ElevatorCollider != null)
+            UpdateUpElevator();
+    }
     void UpdatePunch()
     {
         if (CanPunch() && Input.GetMouseButtonDown(m_PunchMouseButton))
