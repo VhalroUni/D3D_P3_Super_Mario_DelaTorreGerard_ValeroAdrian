@@ -20,6 +20,12 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     [Range(0.0f, 1.0f)] public float m_RotationLerpPct = 0.1f;
     public float m_DampTime = 0.1f;
 
+    [Header("Jump")]
+    public KeyCode m_JumpKeyCode = KeyCode.Space;
+    public float m_JumpSpeed = 5.0f;
+    public float m_MaxAngleToKillGoomba = 45.0f;
+    public float m_KillJumpSpeed = 7.0f;
+
     [Header("Punch")]
     public float m_MaxTimeToComboPunch = 0.8f;
     int m_CurrentPunchId;
@@ -36,6 +42,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
     [Header("Coin")]
     public int m_Coin = 0;
+
+    [Header("Audio")]
+    public AudioSource m_LeftFootStepAudioSource;
+    public AudioSource m_RightFootStepAudioSource;
 
     private void Awake()
     {
@@ -93,11 +103,17 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(l_Movement), m_RotationLerpPct);
         }
 
-        l_Movement *= l_Speed * Time.deltaTime;
+        if (Input.GetKeyDown(m_JumpKeyCode))
+        {
+            if (CanJump())
+                Jump();
+        }
+
+        l_Movement *= l_Speed*Time.deltaTime;
         m_VerticalSpeed += Physics.gravity.y * Time.deltaTime;
         l_Movement.y = m_VerticalSpeed * Time.deltaTime;
         CollisionFlags l_CollisionFlags = m_CharacterController.Move(l_Movement);
-        if ((l_CollisionFlags & CollisionFlags.CollidedBelow) != 0)
+        if ((l_CollisionFlags & CollisionFlags.CollidedBelow) != 0 && m_VerticalSpeed < 0.0f)
             m_VerticalSpeed = 0.0f;
         else if ((l_CollisionFlags & CollisionFlags.CollidedAbove) != 0 && m_VerticalSpeed > 0.0f)
             m_VerticalSpeed = 0.0f;
@@ -152,6 +168,36 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         transform.rotation = m_StartRotation;
         m_CharacterController.enabled = true;
     }
+    bool CanJump()
+    {
+        return true;
+    }
+    void Jump()
+    {
+        m_VerticalSpeed = m_JumpSpeed;
+    }
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.collider.CompareTag("Goomba"))
+        {
+            GoombaEnemy l_GoombaEnemy = hit.collider.GetComponent<GoombaEnemy>();
+            if (CanKillWithFeet(hit))
+            {
+                l_GoombaEnemy.Kill();
+                JumpOverEnemy();
+            }
+            Debug.DrawRay(hit.point, hit.normal, Color.magenta, 5.0f);
+        }
+    }
+    void JumpOverEnemy()
+    {
+        m_VerticalSpeed = m_KillJumpSpeed;
+    }
+    bool CanKillWithFeet(ControllerColliderHit hit)
+    {
+        float l_Dot = Vector3.Dot(hit.normal, Vector3.up);
+        return m_VerticalSpeed < 0.0f && l_Dot > Mathf.Cos(m_MaxAngleToKillGoomba * Mathf.Deg2Rad);
+    }
 
     public void AddLife(int Life)
     {
@@ -186,5 +232,18 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     {
         GameManager.GetGameManager().RestartGame();
     }
+
+    public void Step(AnimationEvent _AnimationEvent)
+    {
+        AudioSource l_CurrentAudioSource = null;
+        if (_AnimationEvent.stringParameter == "Left")
+            l_CurrentAudioSource = m_LeftFootStepAudioSource;
+        else if (_AnimationEvent.stringParameter == "Right")
+            l_CurrentAudioSource = m_RightFootStepAudioSource;
+        AudioClip l_AudioClip = (AudioClip)_AnimationEvent.objectReferenceParameter;
+        l_CurrentAudioSource.clip = l_AudioClip;
+        l_CurrentAudioSource.Play();
+    }
+
 
 }
