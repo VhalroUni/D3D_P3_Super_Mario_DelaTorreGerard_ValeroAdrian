@@ -1,6 +1,6 @@
-using TreeEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Cursor = UnityEngine.Cursor;
 
 public class PlayerController : MonoBehaviour, IRestartGameElement
 {
