@@ -3784,7 +3784,7 @@ MonoBehaviour:
   m_LeftHandPunchCollider: {fileID: 637358412}
   m_KickPunchCollider: {fileID: 850197498}
   m_PunchMouseButton: 0
-  m_Life: 100
+  m_Life: 8
   m_Coins: 0
   m_MaxAngleToAttachElevator: 30
   m_LeftFootStepAudioSource: {fileID: 435030368}
@@ -5789,7 +5789,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ec6479a16a548d43831ad342993b17c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  m_GameUI: {fileID: 0}
+  m_GameUI: {fileID: 314992672}
 --- !u!4 &1578807986
 Transform:
   m_ObjectHideFlags: 0
