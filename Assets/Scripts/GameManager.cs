@@ -33,6 +33,12 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.H))
             m_Player.Hit();
+
+        if (Input.GetKeyUp(KeyCode.J))
+            m_Player.AddCoin(1);
+
+        if (Input.GetKeyUp(KeyCode.K))
+            m_Player.AddLife(1);
     }
     public void RestartGame()
     {

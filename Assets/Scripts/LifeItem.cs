@@ -11,7 +11,7 @@ public class LifeItem : Item
     public override bool CanPick()
     {
         PlayerController m_Player = GameManager.GetGameManager().GetPLayer();
-        if (m_Player.m_Life >= 100) //Max de vida
+        if (m_Player.m_Life >= 8) //Max de vida
             return false;
         else
             return true;

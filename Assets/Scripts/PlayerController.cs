@@ -247,22 +247,22 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     public void AddLife(int Life)
     {
         m_Life += Life;
-        if (m_Life > 100)
-            m_Life = 100;
-        //UpdateLifeHUD();
+        if (m_Life > 8)
+            m_Life = 8;
+
+        GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
+        GameManager.GetGameManager().m_GameUI.ShowUI();
     }
 
     public void AddCoin(int Coin)
     {
-        ++m_Coins;
         m_Coins += Coin;
         GameManager.GetGameManager().m_GameUI.SetCoins(m_Coins);
         GameManager.GetGameManager().m_GameUI.ShowUI();
-        //UpdateCoinHUD();
     }
     public void Hit()
     {
-        --m_Life;
+        m_Life -= 1;
         GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
         GameManager.GetGameManager().m_GameUI.ShowUI();
     }
@@ -276,7 +276,8 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
             m_Life = 0;
         }
 
-        //UpdateLifeHUD();
+        GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
+        GameManager.GetGameManager().m_GameUI.ShowUI();
 
         if (m_Life <= 0)
             Kill();
