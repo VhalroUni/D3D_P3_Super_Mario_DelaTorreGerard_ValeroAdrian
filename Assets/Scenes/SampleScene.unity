@@ -4168,8 +4168,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   m_Camera: {fileID: 330585545}
-  m_RunSpeed: 8
-  m_WalkSpeed: 4
+  m_RunSpeed: 4
+  m_WalkSpeed: 2
   m_LookAt: {fileID: 28209607}
   m_RotationLerpPct: 0.1
   m_DampTime: 0.2
@@ -5590,7 +5590,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.3826837, z: -0, w: 0.9238795}
   m_LocalPosition: {x: -3.398, y: 1.3, z: -1.637}
-  m_LocalScale: {x: 7.9800735, y: -0.417769, z: 1.174271}
+  m_LocalScale: {x: 8.517136, y: -0.4148154, z: 1.5555161}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1743211591}
@@ -6767,11 +6767,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7c0c5ddd8aaaf0648a5624fc561b3af4, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.029
+      value: 0.027013788
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7c0c5ddd8aaaf0648a5624fc561b3af4, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.21
+      value: 0.1493457
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 7c0c5ddd8aaaf0648a5624fc561b3af4, type: 3}
       propertyPath: m_LocalPosition.x
