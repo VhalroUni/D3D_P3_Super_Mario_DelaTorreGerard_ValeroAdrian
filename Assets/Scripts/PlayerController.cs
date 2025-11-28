@@ -42,9 +42,11 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
     [Header("Health")]
     public int m_Life = 8;
+    LifeController m_LifeController = new LifeController();
 
     [Header("Coin")]
     public int m_Coins = 0;
+    CoinsController m_CoinsController = new CoinsController();
 
     [Header("Attach")]
     public float m_MaxAngleToAttachElevator = 30.0f;
@@ -268,21 +270,22 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         if (m_Life > 8)
             m_Life = 8;
 
-        GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
-        GameManager.GetGameManager().m_GameUI.ShowUI();
+        m_LifeController.AddLife(-1);
+        //GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
+        //GameManager.GetGameManager().m_GameUI.ShowUI();
     }
 
     public void AddCoin(int Coin)
     {
-        m_Coins += Coin;
-        GameManager.GetGameManager().m_GameUI.SetCoins(m_Coins);
-        GameManager.GetGameManager().m_GameUI.ShowUI();
+        m_CoinsController.AddCoins(Coin);
+        //GameManager.GetGameManager().m_GameUI.SetCoins(m_Coins);
+        //GameManager.GetGameManager().m_GameUI.ShowUI();
     }
     public void Hit()
     {
-        m_Life -= 1;
-        GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
-        GameManager.GetGameManager().m_GameUI.ShowUI();
+        m_LifeController.AddLife(-1);
+        //GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
+        //GameManager.GetGameManager().m_GameUI.ShowUI();
     }
 
     public void Damage(int Damage)

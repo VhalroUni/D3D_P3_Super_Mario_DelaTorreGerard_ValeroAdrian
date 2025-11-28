@@ -22,6 +22,14 @@ public class GameUI : MonoBehaviour
         SetLifeBar(1.0f);
         m_Animation.Play(m_StayOutAnimationClip.name);
         m_Animation.Sample();
+        DependencyInjector.GetDependency<CoinsController>().m_OnCoinsChanged += OnCoinsChanged;
+        DependencyInjector.GetDependency<LifeController>().m_OnLifeChanged += OnLifeChanged;
+
+    }
+    private void OnDestroy()
+    {
+        DependencyInjector.GetDependency<CoinsController>().m_OnCoinsChanged -= OnCoinsChanged;
+        DependencyInjector.GetDependency<LifeController>().m_OnLifeChanged -= OnLifeChanged;
     }
     public void SetCoins(int Coins)
     {
@@ -48,5 +56,15 @@ public class GameUI : MonoBehaviour
         m_Animation.Play(m_OutAnimationClip.name);
         m_Animation.PlayQueued(m_StayOutAnimationClip.name);
         m_Animation.Sample();
+    }
+    public void OnCoinsChanged(CoinsController _CoinsController)
+    {
+        SetCoins(_CoinsController.GetValeu());
+        ShowUI();
+    }
+    public void OnLifeChanged(LifeController _LifeController)
+    {
+        SetLifeBar(_LifeController.GetValeu() / 8.0f);
+        ShowUI();
     }
 }
