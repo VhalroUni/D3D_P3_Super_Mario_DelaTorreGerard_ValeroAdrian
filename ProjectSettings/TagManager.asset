@@ -8,6 +8,8 @@ TagManager:
   - DeadZone
   - Elevator
   - Goomba
+  - Bridge
+  - CheckPoint
   layers:
   - Default
   - TransparentFX

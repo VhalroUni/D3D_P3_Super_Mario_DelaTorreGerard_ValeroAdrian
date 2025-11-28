@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     public Transform m_LookAt;
     [Range(0.0f, 1.0f)] public float m_RotationLerpPct = 0.1f;
     public float m_DampTime = 0.1f;
+    CheckPoint m_CurrentCheckPoint;
 
     [Header("Jump")]
     public KeyCode m_JumpKeyCode = KeyCode.Space;
@@ -52,6 +53,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     [Header("Audio")]
     public AudioSource m_LeftFootStepAudioSource;
     public AudioSource m_RightFootStepAudioSource;
+
+    [Header("Elevator")]
+    public float m_MaxAngleToAttachToElevator = 30.0f;
+    public float m_BridgeHitForce = 10.0f;
 
     private void Awake()
     {
@@ -145,6 +150,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
             if (CanAttachToElevator(other))
                 AttachToElevator(other);
         }
+        else if (other.CompareTag("CheckPoint"))
+        {
+            m_CurrentCheckPoint=other.GetComponent<CheckPoint>();
+        }
     }
     private void OnTriggerExit(Collider other)
     {
@@ -208,6 +217,11 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     }
     public void RestartGame()
     {
+        if (m_CurrentCheckPoint != null)
+        {
+            m_StartPosition=m_CurrentCheckPoint.m_RestartPosition.position;
+            m_StartRotation = m_CurrentCheckPoint.m_RestartPosition.rotation;
+        }
         m_CharacterController.enabled = false;
         transform.position = m_StartPosition;
         transform.rotation = m_StartRotation;
@@ -232,6 +246,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
                 JumpOverEnemy();
             }
             Debug.DrawRay(hit.point, hit.normal, Color.magenta, 5.0f);
+        }
+        else if (hit.collider.CompareTag("Bridge"))
+        {
+            hit.rigidbody.AddForceAtPosition(-hit.normal * m_BridgeHitForce, hit.point);
         }
     }
     void JumpOverEnemy()
