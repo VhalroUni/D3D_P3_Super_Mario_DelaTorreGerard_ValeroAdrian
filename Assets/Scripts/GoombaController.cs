@@ -17,9 +17,6 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
     Vector3 m_StartPosition;
     Quaternion m_StartRotation;
 
-    [Header("Target")]
-    public Transform m_Target;
-
     [Header("Distance")]
     public float m_DetectRadius = 10.0f;
     public float m_AttackRadius = 2.0f;
@@ -75,9 +72,6 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
             case TState.CHASE:
                 UpdateChaseState();
                 break;
-            case TState.ATTACK:
-                UpdateAttackState();
-                break;
             case TState.DIE:
                 UpdateDieState();
                 break;
@@ -123,27 +117,11 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
             SetPatrolState();
             return;
         }
-        if (distance < m_MinDistanceToChase)
-        {
-            SetAttackState();
-            return;
-        }
-
         GoombaMove(GameManager.GetGameManager().GetPLayer().transform.position, m_ChaseSpeed);
     }
-    void SetAttackState()
+    private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        m_State = TState.ATTACK;
-    }
-    void UpdateAttackState()
-    {
-        float distance = Vector3.Distance(transform.position, GameManager.GetGameManager().GetPLayer().transform.position);
-        if (distance > m_MinDistanceToChase)
-        {
-            SetChaseState();
-            return;
-        }
-        else
+        if (hit.collider.CompareTag("Player"))
         {
             if (m_AttackTimer <= 0)
             {
@@ -151,7 +129,9 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
                 m_AttackTimer = m_AttackCooldown;
             }
         }
+
     }
+
     void SetDieState()
     {
         m_State = TState.DIE;
