@@ -76,6 +76,7 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         m_StartPosition = transform.position;
         m_StartRotation = transform.rotation;
         GameManager.GetGameManager().AddRestartGameElement(this);
+        GameManager.GetGameManager().SetPlayer(this);
     }
 
     void Update()

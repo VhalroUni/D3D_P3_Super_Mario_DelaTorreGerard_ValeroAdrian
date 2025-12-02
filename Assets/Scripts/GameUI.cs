@@ -15,13 +15,16 @@ public class GameUI : MonoBehaviour
     public AnimationClip m_StayInAnimationClip;
     public AnimationClip m_StayOutAnimationClip;
     public float m_ShowUIWaitTime = 1.0f;
+    private bool m_IsUIVisible = false;
+    private Coroutine m_HideCoroutine;
+
 
     private void Start()
     {
         SetCoins(0);
         SetLifeBar(1.0f);
         m_Animation.Play(m_StayOutAnimationClip.name);
-        m_Animation.Sample();
+
         DependencyInjector.GetDependency<CoinsController>().m_OnCoinsChanged += OnCoinsChanged;
         DependencyInjector.GetDependency<LifeController>().m_OnLifeChanged += OnLifeChanged;
 
@@ -41,21 +44,44 @@ public class GameUI : MonoBehaviour
     }
     public void ShowUI()
     {
+        if (m_HideCoroutine != null)
+        { 
+            StopCoroutine(m_HideCoroutine);
+        }
+
+        if (!m_IsUIVisible)
+        {
+            m_Animation.Stop();
         m_Animation.Play(m_InAnimationClip.name);
-        m_Animation.PlayQueued(m_StayOutAnimationClip.name);
-        m_Animation.Sample();
-        StartCoroutine(HideUICoroutine());
+        m_Animation.PlayQueued(m_StayInAnimationClip.name);
+        m_IsUIVisible = true;
+        }
+
+        m_HideCoroutine = StartCoroutine(HideUICoroutine());
+
+        // m_Animation.Play(m_InAnimationClip.name);
+        // m_Animation.PlayQueued(m_StayOutAnimationClip.name);
+        //m_Animation.Sample();
+        //StartCoroutine(HideUICoroutine());
+
+
     }
     IEnumerator HideUICoroutine()
     {
         yield return new WaitForSeconds(m_ShowUIWaitTime);
         HideUI();
+        m_HideCoroutine = null;
     }
     public void HideUI()
     {
+        //m_Animation.Play(m_OutAnimationClip.name);
+        //m_Animation.PlayQueued(m_StayInAnimationClip.name);
+        //m_Animation.Sample();
+
+        m_Animation.Stop();
         m_Animation.Play(m_OutAnimationClip.name);
         m_Animation.PlayQueued(m_StayOutAnimationClip.name);
-        m_Animation.Sample();
+        m_IsUIVisible = false;
     }
     public void OnCoinsChanged(CoinsController _CoinsController)
     {

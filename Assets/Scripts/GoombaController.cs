@@ -1,65 +1,70 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
-public class GoombaController : MonoBehaviour
+public class GoombaController : MonoBehaviour, IRestartGameElement
 {
     enum TState
     {
-        IDLE = 0,
         PATROL,
-        ALERT,
-        ATTACK,
         CHASE,
-        HIT,
+        ATTACK,
         DIE
     }
+
     TState m_State;
-    NavMeshAgent m_NavMeshAgent;
+
+    CharacterController m_CharacterController;
+    Vector3 m_StartPosition;
+    Quaternion m_StartRotation;
+
+    [Header("Target")]
     public Transform m_Target;
 
     [Header("Distance")]
-    public float m_MinDistanceToAttack = 5.0f;
-    public float m_MinDistanceToPlayer = 2.0f;
+    public float m_DetectRadius = 10.0f;
+    public float m_AttackRadius = 2.0f;
+    public float m_MinDistanceToChase = 2.0f;
 
     [Header("Patrol")]
-    public List<Transform> m_PatrolPositoins;
+    public List<Transform> m_PatrolPositions;
     int m_CurrentPatrolPositionId = 0;
+    public float m_PatrolSpeed = 1.0f;
 
     [Header("Chase")]
-    public float m_AlertTimer = 0f;
-    public float m_Speed = 2f;
-    public float m_MaxDistanceToChase = 15f;
+    public float m_ChaseSpeed = 2.0f;
 
     [Header("Sight")]
-    public float m_SightAngle = 60.0f;
+    public float m_SightAngle = 90.0f;
     public LayerMask m_SightLayerMask;
-    public float m_EyesHeight = 1.8f;
-
-    [Header("Life")]
-    public int m_Life = 100;
-    public int m_MaxLife = 100;
+    public float m_EyesHeight = 1.2f;
 
     [Header("AttackCooldowns")]
-    public float m_AttackCooldown = 0.3f;
+    public float m_AttackCooldown = 1.0f;
     private float m_AttackTimer = 0;
 
-    [Header("Dead")]
-    public List<MeshRenderer> m_MeshRenderers;
-    float m_CurrentTime;
-    public float m_DeadTime = 1.5f;
+    [Header("Life")]
+    public int m_Life = 1;
 
     [Header("Loot")]
     public GameObject m_ItemDrop;
 
     private void Awake()
     {
-        m_NavMeshAgent = GetComponent<NavMeshAgent>();
+        m_CharacterController = GetComponent<CharacterController>();
+    }
+
+    private void Start()
+    {
+        GameManager.GetGameManager().AddRestartGameElement(this);
+        m_StartPosition = transform.position;
+        m_StartRotation = transform.rotation;
+
+        SetPatrolState();
     }
 
     private void Update()
     {
-        if (m_AttackCooldown > 0f)
+        if (m_AttackTimer > 0f)
             m_AttackTimer -= Time.deltaTime;
 
         switch (m_State)
@@ -67,11 +72,11 @@ public class GoombaController : MonoBehaviour
             case TState.PATROL:
                 UpdatePatrolState();
                 break;
-            case TState.ATTACK:
-                UpdateAttackState();
-                break;
             case TState.CHASE:
                 UpdateChaseState();
+                break;
+            case TState.ATTACK:
+                UpdateAttackState();
                 break;
             case TState.DIE:
                 UpdateDieState();
@@ -82,12 +87,26 @@ public class GoombaController : MonoBehaviour
     {
         m_State = TState.PATROL;
         m_CurrentPatrolPositionId = 0;
-        MoveToNextPatrolPosition();
     }
     void UpdatePatrolState()
     {
-        if (!m_NavMeshAgent.hasPath && m_NavMeshAgent.pathStatus == NavMeshPathStatus.PathComplete)
+        if (SeesPlayer())
+        {
+            SetChaseState();
+            return;
+        }
+
+        if (m_PatrolPositions.Count == 0)
+            return;
+
+        Vector3 l_Target = m_PatrolPositions[m_CurrentPatrolPositionId].position;
+        GoombaMove(l_Target, m_PatrolSpeed);
+
+        float distance = Vector3.Distance(transform.position, l_Target);
+        if (distance < 0.3f)
+        {
             MoveToNextPatrolPosition();
+        }
     }
     void SetChaseState()
     {
@@ -98,13 +117,19 @@ public class GoombaController : MonoBehaviour
     {
         Debug.Log("Chasing");
         float distance = Vector3.Distance(transform.position, GameManager.GetGameManager().GetPLayer().transform.position);
-        if (distance <= m_MinDistanceToAttack)
-            SetAttackState();
-        else if (distance >= m_MaxDistanceToChase)
+
+        if (!SeesPlayer())
         {
             SetPatrolState();
+            return;
         }
-        SetNextChasePosition();
+        if (distance < m_MinDistanceToChase)
+        {
+            SetAttackState();
+            return;
+        }
+
+        GoombaMove(GameManager.GetGameManager().GetPLayer().transform.position, m_ChaseSpeed);
     }
     void SetAttackState()
     {
@@ -112,22 +137,17 @@ public class GoombaController : MonoBehaviour
     }
     void UpdateAttackState()
     {
-        //Si le pegas un hit se queda en alert, si no te ve despues de esto = patrol, si te ve = chase.
         float distance = Vector3.Distance(transform.position, GameManager.GetGameManager().GetPLayer().transform.position);
-        if (distance > m_MinDistanceToAttack && distance <= m_MaxDistanceToChase)
+        if (distance > m_MinDistanceToChase)
         {
             SetChaseState();
-            SetNextChasePosition();
+            return;
         }
-        else if (distance > m_MaxDistanceToChase)
-            SetPatrolState();
         else
         {
             if (m_AttackTimer <= 0)
             {
-                //El player recibe damage
-                Debug.Log("Damaga al Player");
-                GameManager.GetGameManager().GetPLayer().Damage(10);
+                GameManager.GetGameManager().GetPLayer().Damage(1);
                 m_AttackTimer = m_AttackCooldown;
             }
         }
@@ -135,7 +155,6 @@ public class GoombaController : MonoBehaviour
     void SetDieState()
     {
         m_State = TState.DIE;
-        m_CurrentTime = 0.0f;
         if (m_ItemDrop != null)
         {
             Vector3 m_DropPosition = transform.position + Vector3.up;
@@ -147,23 +166,24 @@ public class GoombaController : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    void SetNextChasePosition()
+    void GoombaMove(Vector3 Target, float Speed)
     {
-        Vector3 l_PlayerPosition = GameManager.GetGameManager().GetPLayer().transform.position;
-        Vector3 l_Direction = l_PlayerPosition - transform.position;
+        Vector3 l_Direction = Target - transform.position;
+        l_Direction.y = 0;
+
         l_Direction.Normalize();
-        Vector3 l_Position = l_PlayerPosition - l_Direction * m_MinDistanceToAttack;
-        m_NavMeshAgent.destination = l_Position;
+
+        m_CharacterController.Move(l_Direction * Speed * Time.deltaTime);
+
+        if (l_Direction != Vector3.zero)
+            transform.rotation = Quaternion.LookRotation(l_Direction);
     }
     void MoveToNextPatrolPosition()
     {
-        Vector3 l_Destination = m_PatrolPositoins[m_CurrentPatrolPositionId].position;
-        m_NavMeshAgent.destination = l_Destination;
         ++m_CurrentPatrolPositionId;
-        if (m_CurrentPatrolPositionId >= m_PatrolPositoins.Count)
+        if (m_CurrentPatrolPositionId >= m_PatrolPositions.Count)
             m_CurrentPatrolPositionId = 0;
     }
-
     bool SeesPlayer()
     {
         Vector3 l_PlayerPosition = GameManager.GetGameManager().GetPLayer().transform.position;
@@ -181,5 +201,16 @@ public class GoombaController : MonoBehaviour
         }
         return false;
     }
+    public void RestartGame()
+    {
+        m_CharacterController.enabled = false;
+        transform.position = m_StartPosition;
+        transform.rotation = m_StartRotation;
+        m_CharacterController.enabled = true;
+        gameObject.SetActive(true);
+    }
+    public void Kill()
+    {
+        SetDieState();
+    }
 }
-
