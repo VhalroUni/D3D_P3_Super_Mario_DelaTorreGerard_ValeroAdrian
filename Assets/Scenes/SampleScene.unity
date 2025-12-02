@@ -6146,6 +6146,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.x
       value: 5.16
       objectReference: {fileID: 0}
+    - target: {fileID: 2325024683690591939, guid: a93ed2b41415b8142a7b135179d4dc11, type: 3}
+      propertyPath: m_Radius
+      value: 0.95
+      objectReference: {fileID: 0}
+    - target: {fileID: 2590925977772947521, guid: a93ed2b41415b8142a7b135179d4dc11, type: 3}
+      propertyPath: m_SightAngle
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 2590925977772947521, guid: a93ed2b41415b8142a7b135179d4dc11, type: 3}
+      propertyPath: m_DetectPlayer
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2590925977772947521, guid: a93ed2b41415b8142a7b135179d4dc11, type: 3}
       propertyPath: 'm_PatrolPositions.Array.data[0]'
       value: 

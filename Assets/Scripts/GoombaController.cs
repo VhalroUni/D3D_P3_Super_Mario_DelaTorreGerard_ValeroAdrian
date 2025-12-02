@@ -47,6 +47,7 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
     private void Awake()
     {
         m_CharacterController = GetComponent<CharacterController>();
+
     }
 
     private void Start()
@@ -168,13 +169,16 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
         Vector3 l_Direction = l_PlayerPosition - transform.position;
         float l_Distance = l_Direction.magnitude;
         //l_Direction.Normalize();
+        if(l_Distance > m_DetectPlayer)
+            return false;
+
         l_Direction /= l_Distance;
         float l_DotValue = Vector3.Dot(l_Direction, transform.forward);
         if (l_DotValue >= Mathf.Cos(m_SightAngle * 0.5f * Mathf.Deg2Rad))
         {
             Ray l_Ray = new Ray(transform.position + Vector3.up * m_EyesHeight, l_Direction);
             //float l_Distance=Vector3.Distance(l_PlayerPosition, transform.position);
-            if (!Physics.Raycast(l_Ray, l_Distance, m_SightLayerMask.value))
+            if (!Physics.Raycast(l_Ray, m_DetectPlayer, m_SightLayerMask.value))
                 return true;
         }
         return false;
