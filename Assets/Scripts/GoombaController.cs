@@ -18,8 +18,7 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
     Quaternion m_StartRotation;
 
     [Header("Distance")]
-    public float m_DetectRadius = 10.0f;
-    public float m_AttackRadius = 2.0f;
+    public float m_DetectPlayer = 10.0f;
     public float m_MinDistanceToChase = 2.0f;
 
     [Header("Patrol")]
@@ -112,7 +111,7 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
         Debug.Log("Chasing");
         float distance = Vector3.Distance(transform.position, GameManager.GetGameManager().GetPLayer().transform.position);
 
-        if (!SeesPlayer())
+        if (!SeesPlayer() || distance > m_DetectPlayer)
         {
             SetPatrolState();
             return;
@@ -129,7 +128,6 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
                 m_AttackTimer = m_AttackCooldown;
             }
         }
-
     }
 
     void SetDieState()
