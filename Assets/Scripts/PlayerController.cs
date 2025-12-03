@@ -242,7 +242,7 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     {
         if (hit.collider.CompareTag("Goomba"))
         {
-            GoombaEnemy l_GoombaEnemy = hit.collider.GetComponent<GoombaEnemy>();
+            GoombaController l_GoombaEnemy = hit.collider.GetComponent<GoombaController>();
             if (CanKillWithFeet(hit))
             {
                 l_GoombaEnemy.Kill();
