@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -44,6 +45,10 @@ public class GameManager : MonoBehaviour
     {
         foreach (IRestartGameElement l_RestartGameElement in m_RestartGameElements)
             l_RestartGameElement.RestartGame();
+    }
+    public void RestartFullGame()
+    {
+        SceneManager.LoadScene(0);
     }
     public PlayerController GetPLayer()
     {

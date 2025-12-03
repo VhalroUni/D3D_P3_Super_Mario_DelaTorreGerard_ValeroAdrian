@@ -41,8 +41,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     public int m_PunchMouseButton = 0;
 
     [Header("Health")]
-    public int m_Life = 8;
+    public int m_LocalLifes = 8;
+    public int m_GlobalLifes = 5;
     LifeController m_LifeController = new LifeController();
+    public GameObject m_CanvasGameOver;
 
     [Header("Coin")]
     public int m_Coins = 0;
@@ -81,6 +83,16 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
     void Update()
     {
+        if (m_GlobalLifes <= 0)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Time.timeScale = 1.0f;
+                GameManager.GetGameManager().RestartFullGame();
+            }
+            return;
+        }
+
         Vector3 l_Right = m_Camera.transform.right;
         Vector3 l_Forward = m_Camera.transform.forward;
         Vector3 l_Movement = Vector3.zero;
@@ -267,9 +279,9 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
     public void AddLife(int Life)
     {
-        m_Life += Life;
-        if (m_Life > 8)
-            m_Life = 8;
+        m_LocalLifes += Life;
+        if (m_LocalLifes > 8)
+            m_LocalLifes = 8;
 
         m_LifeController.AddLife(-1);
         //GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
@@ -291,23 +303,36 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
     public void Damage(int Damage)
     {
-        m_Life -= Damage;
+        m_LocalLifes -= Damage;
 
-        if (m_Life < 0)
+        if (m_LocalLifes < 0)
         {
-            m_Life = 0;
+            m_LocalLifes = 0;
         }
 
-        GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
+        GameManager.GetGameManager().m_GameUI.SetLifeBar(m_LocalLifes / 8.0f);
         GameManager.GetGameManager().m_GameUI.ShowUI();
 
-        if (m_Life <= 0)
+        if (m_LocalLifes <= 0)
             Kill();
     }
 
     void Kill()
     {
-        GameManager.GetGameManager().RestartGame();
+        m_GlobalLifes--;
+        if(m_GlobalLifes > 0)
+        {
+            m_LocalLifes = 8;
+            GameManager.GetGameManager().RestartGame();
+            GameManager.GetGameManager().m_GameUI.SetLifeBar(m_LocalLifes / 8.0f);
+            GameManager.GetGameManager().m_GameUI.ShowUI();
+        }
+        else
+        {
+            Time.timeScale = 0;
+            if (m_CanvasGameOver != null)
+                m_CanvasGameOver.SetActive(true);
+        }
     }
 
     public void Step(AnimationEvent _AnimationEvent)
