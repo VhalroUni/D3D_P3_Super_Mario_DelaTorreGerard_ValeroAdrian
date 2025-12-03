@@ -4674,15 +4674,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400098, guid: 2c49a169fa02b2545921fcc829011ecb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1
+      value: 26.71
       objectReference: {fileID: 0}
     - target: {fileID: 400098, guid: 2c49a169fa02b2545921fcc829011ecb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9.217
+      value: 9.23
       objectReference: {fileID: 0}
     - target: {fileID: 400098, guid: 2c49a169fa02b2545921fcc829011ecb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 29.04
       objectReference: {fileID: 0}
     - target: {fileID: 400098, guid: 2c49a169fa02b2545921fcc829011ecb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4784,6 +4784,7 @@ MonoBehaviour:
   m_JumpSpeed: 5
   m_MaxAngleToKillGoomba: 45
   m_KillJumpSpeed: 7
+  m_MaxTimeToComboJump: 0.8
   m_MaxTimeToComboPunch: 0.8
   m_RightHandPunchCollider: {fileID: 1851756021}
   m_LeftHandPunchCollider: {fileID: 637358412}
