@@ -50,6 +50,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     LifeController m_LifeController = new LifeController();
     public GameObject m_CanvasGameOver;
 
+    [Header("Star")]
+    public int m_Stars = 0;
+    StarsController m_StarsController = new StarsController();
+
     [Header("Coin")]
     public int m_Coins = 0;
     CoinsController m_CoinsController = new CoinsController();
@@ -189,35 +193,41 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     }
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Elevator"))
+        if (other.CompareTag("Elevator") && other == m_ElevatorCollider)
             DetachFromElevator();
     }
+
     bool CanAttachToElevator(Collider ElevatorCollider)
     {
-
-        return Vector3.Dot(ElevatorCollider.transform.up, Vector3.up) > Mathf.Cos(m_MaxAngleToAttachElevator * Mathf.Deg2Rad);
+        return Vector3.Dot(ElevatorCollider.transform.up, Vector3.up) >
+               Mathf.Cos(m_MaxAngleToAttachElevator * Mathf.Deg2Rad);
     }
+
     void AttachToElevator(Collider ElevatorCollider)
     {
         transform.SetParent(ElevatorCollider.transform.parent);
         m_ElevatorCollider = ElevatorCollider;
     }
+
     void DetachFromElevator()
     {
         transform.SetParent(null);
-        transform.up = Vector3.up;
+        UpdateElevator();
         m_ElevatorCollider = null;
     }
+
     void UpdateElevator()
     {
         if (m_ElevatorCollider != null)
         {
             Vector3 l_Direction = transform.forward;
-            l_Direction.y = 0.0f;
+            l_Direction.y = 0f;
             l_Direction.Normalize();
             transform.rotation = Quaternion.LookRotation(l_Direction, Vector3.up);
         }
     }
+
+
     void UpdatePunch()
     {
         if (CanPunch() && Input.GetMouseButtonDown(m_PunchMouseButton))
@@ -324,6 +334,12 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
         m_LifeController.AddLife(-1);
         //GameManager.GetGameManager().m_GameUI.SetLifeBar(m_Life / 8.0f);
+        //GameManager.GetGameManager().m_GameUI.ShowUI();
+    }
+    public void AddStars(int Star)
+    {
+        m_StarsController.AddStars(Star);
+        //GameManager.GetGameManager().m_GameUI.SetCoins(m_Coins);
         //GameManager.GetGameManager().m_GameUI.ShowUI();
     }
 

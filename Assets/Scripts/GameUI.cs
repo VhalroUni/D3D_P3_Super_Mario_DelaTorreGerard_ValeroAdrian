@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class GameUI : MonoBehaviour
 {
+    public Text m_StarsText;
     public Text m_CoinsText;
     public Image m_LifeBar;
 
@@ -21,6 +22,7 @@ public class GameUI : MonoBehaviour
 
     private void Start()
     {
+        SetStars(0);
         SetCoins(0);
         SetLifeBar(1.0f);
         m_Animation.Play(m_StayOutAnimationClip.name);
@@ -33,6 +35,10 @@ public class GameUI : MonoBehaviour
     {
         DependencyInjector.GetDependency<CoinsController>().m_OnCoinsChanged -= OnCoinsChanged;
         DependencyInjector.GetDependency<LifeController>().m_OnLifeChanged -= OnLifeChanged;
+    }
+    public void SetStars(int Stars)
+    {
+        m_CoinsText.text = Stars.ToString();
     }
     public void SetCoins(int Coins)
     {
