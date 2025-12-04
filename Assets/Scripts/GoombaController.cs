@@ -18,7 +18,6 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
     Quaternion m_StartRotation;
 
     [Header("Distance")]
-    public float m_DetectPlayer = 10.0f;
     public float m_MinDistanceToChase = 2.0f;
 
     [Header("Patrol")]
@@ -29,10 +28,10 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
     [Header("Chase")]
     public float m_ChaseSpeed = 2.0f;
 
-    [Header("Sight")]
-    public float m_SightAngle = 90.0f;
-    public LayerMask m_SightLayerMask;
-    public float m_EyesHeight = 1.2f;
+    [Header("Radius")]
+    public float m_DetectRadius = 10.0f; // Radio de detección
+    public float m_EyesHeight = 0.7f;
+    public float m_Gravity = 9.81f; // Fuerza que mantiene al goomba en el suelo
 
     [Header("AttackCooldowns")]
     public float m_AttackCooldown = 1.0f;
@@ -47,7 +46,6 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
     private void Awake()
     {
         m_CharacterController = GetComponent<CharacterController>();
-
     }
 
     private void Start()
@@ -77,11 +75,13 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
                 break;
         }
     }
+
     void SetPatrolState()
     {
         m_State = TState.PATROL;
         m_CurrentPatrolPositionId = 0;
     }
+
     void UpdatePatrolState()
     {
         if (SeesPlayer())
@@ -102,23 +102,25 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
             MoveToNextPatrolPosition();
         }
     }
+
     void SetChaseState()
     {
-        Debug.Log("SetChase");
         m_State = TState.CHASE;
     }
+
     void UpdateChaseState()
     {
-        Debug.Log("Chasing");
-        float distance = Vector3.Distance(transform.position, GameManager.GetGameManager().GetPLayer().transform.position);
+        Vector3 playerPos = GameManager.GetGameManager().GetPLayer().transform.position;
 
-        if (!SeesPlayer() || distance > m_DetectPlayer)
+        if (!SeesPlayer())
         {
             SetPatrolState();
             return;
         }
-        GoombaMove(GameManager.GetGameManager().GetPLayer().transform.position, m_ChaseSpeed);
+
+        GoombaMove(playerPos, m_ChaseSpeed);
     }
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("Player"))
@@ -140,6 +142,7 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
             Instantiate(m_ItemDrop, m_DropPosition, Quaternion.identity);
         }
     }
+
     void UpdateDieState()
     {
         gameObject.SetActive(false);
@@ -147,42 +150,40 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
 
     void GoombaMove(Vector3 Target, float Speed)
     {
+        // Calculamos la dirección solo horizontalmente
         Vector3 l_Direction = Target - transform.position;
         l_Direction.y = 0;
-
         l_Direction.Normalize();
 
-        m_CharacterController.Move(l_Direction * Speed * Time.deltaTime);
+        // Movemos horizontalmente
+        Vector3 move = l_Direction * Speed * Time.deltaTime;
+
+        // Aplicamos gravedad para que siempre esté en el suelo
+        if (!m_CharacterController.isGrounded)
+        {
+            move.y -= m_Gravity * Time.deltaTime;
+        }
+
+        m_CharacterController.Move(move);
 
         if (l_Direction != Vector3.zero)
             transform.rotation = Quaternion.LookRotation(l_Direction);
     }
+
     void MoveToNextPatrolPosition()
     {
         ++m_CurrentPatrolPositionId;
         if (m_CurrentPatrolPositionId >= m_PatrolPositions.Count)
             m_CurrentPatrolPositionId = 0;
     }
+
     bool SeesPlayer()
     {
-        Vector3 l_PlayerPosition = GameManager.GetGameManager().GetPLayer().transform.position;
-        Vector3 l_Direction = l_PlayerPosition - transform.position;
-        float l_Distance = l_Direction.magnitude;
-        //l_Direction.Normalize();
-        if(l_Distance > m_DetectPlayer)
-            return false;
-
-        l_Direction /= l_Distance;
-        float l_DotValue = Vector3.Dot(l_Direction, transform.forward);
-        if (l_DotValue >= Mathf.Cos(m_SightAngle * 0.5f * Mathf.Deg2Rad))
-        {
-            Ray l_Ray = new Ray(transform.position + Vector3.up * m_EyesHeight, l_Direction);
-            //float l_Distance=Vector3.Distance(l_PlayerPosition, transform.position);
-            if (!Physics.Raycast(l_Ray, m_DetectPlayer, m_SightLayerMask.value))
-                return true;
-        }
-        return false;
+        Vector3 playerPos = GameManager.GetGameManager().GetPLayer().transform.position;
+        float distance = Vector3.Distance(transform.position, playerPos);
+        return distance <= m_DetectRadius;
     }
+
     public void RestartGame()
     {
         m_CharacterController.enabled = false;
@@ -191,6 +192,7 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
         m_CharacterController.enabled = true;
         gameObject.SetActive(true);
     }
+
     public void Kill()
     {
         SetDieState();
