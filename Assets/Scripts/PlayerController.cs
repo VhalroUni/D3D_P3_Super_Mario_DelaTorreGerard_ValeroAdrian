@@ -376,13 +376,13 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
 
     public void Step(AnimationEvent _AnimationEvent)
     {
-        AudioSource l_CurrentAudioSource = null;
+        /*AudioSource l_CurrentAudioSource = null;
         if (_AnimationEvent.stringParameter == "Left")
             l_CurrentAudioSource = m_LeftFootStepAudioSource;
         else if (_AnimationEvent.stringParameter == "Right")
             l_CurrentAudioSource = m_RightFootStepAudioSource;
         AudioClip l_AudioClip = (AudioClip)_AnimationEvent.objectReferenceParameter;
         l_CurrentAudioSource.clip = l_AudioClip;
-        l_CurrentAudioSource.Play();
+        l_CurrentAudioSource.Play();*/
     }
 }
