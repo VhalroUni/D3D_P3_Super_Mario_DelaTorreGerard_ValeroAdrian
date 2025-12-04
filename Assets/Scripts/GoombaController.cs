@@ -29,9 +29,9 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
     public float m_ChaseSpeed = 2.0f;
 
     [Header("Radius")]
-    public float m_DetectRadius = 10.0f; // Radio de detección
+    public float m_DetectRadius = 10.0f; 
     public float m_EyesHeight = 0.7f;
-    public float m_Gravity = 9.81f; // Fuerza que mantiene al goomba en el suelo
+    public float m_Gravity = 9.81f;
 
     [Header("AttackCooldowns")]
     public float m_AttackCooldown = 1.0f;
@@ -150,15 +150,12 @@ public class GoombaController : MonoBehaviour, IRestartGameElement
 
     void GoombaMove(Vector3 Target, float Speed)
     {
-        // Calculamos la dirección solo horizontalmente
         Vector3 l_Direction = Target - transform.position;
         l_Direction.y = 0;
         l_Direction.Normalize();
 
-        // Movemos horizontalmente
         Vector3 move = l_Direction * Speed * Time.deltaTime;
 
-        // Aplicamos gravedad para que siempre esté en el suelo
         if (!m_CharacterController.isGrounded)
         {
             move.y -= m_Gravity * Time.deltaTime;
