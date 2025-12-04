@@ -188,7 +188,7 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         }
         else if (other.CompareTag("CheckPoint"))
         {
-            m_CurrentCheckPoint=other.GetComponent<CheckPoint>();
+            m_CurrentCheckPoint = other.GetComponent<CheckPoint>();
         }
     }
     private void OnTriggerExit(Collider other)
@@ -261,7 +261,7 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     {
         if (m_CurrentCheckPoint != null)
         {
-            m_StartPosition=m_CurrentCheckPoint.m_RestartPosition.position;
+            m_StartPosition = m_CurrentCheckPoint.m_RestartPosition.position;
             m_StartRotation = m_CurrentCheckPoint.m_RestartPosition.rotation;
         }
         m_CharacterController.enabled = false;
@@ -403,5 +403,25 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
         AudioClip l_AudioClip = (AudioClip)_AnimationEvent.objectReferenceParameter;
         l_CurrentAudioSource.clip = l_AudioClip;
         l_CurrentAudioSource.Play();*/
+    }
+    public void PunchSound1(AnimationEvent _AnimationEvent)
+    {
+
+    }
+    public void PunchSound2(AnimationEvent _AnimationEvent)
+    {
+
+    }
+    public void PunchSound3(AnimationEvent _AnimationEvent)
+    {
+
+    }
+    public void FinishPunch(AnimationEvent _AnimationEvent)
+    {
+
+    }
+    public void Jump1(AnimationEvent _AnimationEvent)
+    {
+
     }
 }
