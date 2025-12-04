@@ -375,7 +375,10 @@ public class PlayerController : MonoBehaviour, IRestartGameElement
     void Kill()
     {
         m_GlobalLifes--;
-        if(m_GlobalLifes > 0)
+        GameManager.GetGameManager().m_GameUI.SetGlobalLifes(m_GlobalLifes);
+        GameManager.GetGameManager().m_GameUI.ShowUI();
+
+        if (m_GlobalLifes > 0)
         {
             m_LocalLifes = 8;
             GameManager.GetGameManager().RestartGame();

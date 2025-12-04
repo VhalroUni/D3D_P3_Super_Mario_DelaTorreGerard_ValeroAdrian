@@ -1407,7 +1407,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc398c3544bcc7649b3efc80c9b3acf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameUI
-  m_StarsText: {fileID: 1565816818}
+  m_GlobalLifes: {fileID: 1565816818}
   m_CoinsText: {fileID: 1680473516}
   m_LifeBar: {fileID: 913731647}
   m_Animation: {fileID: 314992668}
