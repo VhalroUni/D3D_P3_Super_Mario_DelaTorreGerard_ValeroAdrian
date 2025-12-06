@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     List<IRestartGameElement> m_RestartGameElements = new List<IRestartGameElement>();
     PlayerController m_Player;
     public GameUI m_GameUI;
+    public AudioSource m_Music;
 
     private void Awake()
     {
@@ -18,6 +19,10 @@ public class GameManager : MonoBehaviour
         }
         m_GameManager = this;
         DontDestroyOnLoad(gameObject);
+    }
+    private void Start()
+    {
+        m_Music.Play();
     }
     static public GameManager GetGameManager()
     {
