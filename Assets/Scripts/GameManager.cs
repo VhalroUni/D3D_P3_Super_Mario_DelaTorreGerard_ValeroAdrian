@@ -55,6 +55,28 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode) //Pregunta a IA para hacer que el restartfullgame y buscar al nuevo player Y GameUI.
+    {
+        PlayerController player = FindAnyObjectByType<PlayerController>();
+        if(player != null)
+        {
+            SetPlayer(player);
+        }
+
+        GameUI UI = FindAnyObjectByType<GameUI>();
+        if (UI != null)
+        {
+            m_GameUI = UI;  
+        }
+    }
     public PlayerController GetPLayer()
     {
         return m_Player;
